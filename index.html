@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESISA — Student Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════ STAR CANVAS ═══════════ -->
+  <canvas id="starCanvas"></canvas>
+
+  <!-- ═══════════ LOGIN OVERLAY ═══════════ -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div class="login-logo"><img src="esisa-logo.svg" alt="ESISA Logo" class="login-logo-img" /></div>
+      <h1 class="login-title">ESISA Student Management</h1>
+      <p class="login-subtitle">Connectez-vous pour accéder au portail</p>
+      <form id="loginForm">
+        <label class="login-label">
+          Email
+          <input type="email" id="loginUsername" placeholder="esisa@ac.ma" required />
+        </label>
+        <label class="login-label">
+          Mot de passe
+          <input type="password" id="loginPassword" placeholder="••••••••" required />
+        </label>
+        <button type="submit" class="login-btn">Se connecter</button>
+        <button type="button" id="fillDemoBtn" class="login-demo-btn">🚀 Accès Démo</button>
+        <p id="loginError" class="login-error"></p>
+      </form>
+      <div class="login-footer">
+        <p class="login-hint">Demo : <strong>esisa@ac.ma</strong> / <strong>esisa123</strong></p>
+        <p class="login-author">Developed by Zayd Swy — ESISA 1st Year Student</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ APP SHELL ═══════════ -->
+  <div id="appContainer" class="app-layout" style="display:none;">
+
+    <!-- ─── SIDEBAR ─── -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <img src="esisa-logo.svg" alt="ESISA" class="sidebar-logo-img" />
+        <span class="sidebar-brand">ESISA</span>
+        <button id="sidebarClose" class="sidebar-close" aria-label="Close sidebar">✕</button>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="dashboard">
+          <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-section="students">
+          <span class="nav-icon">👥</span><span class="nav-label">Étudiants</span>
+        </a>
+        <a href="#" class="nav-item" data-section="modules">
+          <span class="nav-icon">📚</span><span class="nav-label">Modules</span>
+        </a>
+        <a href="#" class="nav-item" data-section="absences">
+          <span class="nav-icon">📋</span><span class="nav-label">Absences</span>
+        </a>
+        <a href="#" class="nav-item" data-section="grades">
+          <span class="nav-icon">📝</span><span class="nav-label">Notes</span>
+        </a>
+        <a href="#" class="nav-item" data-section="decisions">
+          <span class="nav-icon">⚖️</span><span class="nav-label">Décisions</span>
+        </a>
+        <a href="#" class="nav-item" data-section="export">
+          <span class="nav-icon">📄</span><span class="nav-label">Documents</span>
+        </a>
+        <a href="#" class="nav-item" data-section="settings">
+          <span class="nav-icon">⚙️</span><span class="nav-label">Paramètres</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="sidebar-logout">🚪 Déconnexion</button>
+      </div>
+    </aside>
+
+    <!-- ─── SIDEBAR MOBILE OVERLAY ─── -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <div class="main-wrapper">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button id="menuToggle" class="menu-toggle" aria-label="Toggle sidebar">☰</button>
+        <h2 class="topbar-title" id="topbarTitle">Dashboard</h2>
+        <div class="topbar-actions">
+          <button id="nightToggle" class="night-toggle" aria-label="Toggle night mode" title="Night Mode"></button>
+          <span id="demoBadge" class="demo-badge" style="display:none;">DEMO</span>
+          <button id="demoResetBtn" class="btn-sm btn-outline" style="display:none;">🔄 Reset</button>
+        </div>
+      </header>
+
+      <!-- Content Sections -->
+      <main class="content">
+
+        <!-- TOAST -->
+        <div id="toast" class="toast"></div>
+
+        <!-- ════════ DASHBOARD ════════ -->
+        <section id="section-dashboard" class="section active">
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-body"><span class="stat-value" id="statStudents">0</span><span class="stat-label">Étudiants</span></div></div>
+            <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-body"><span class="stat-value" id="statModules">0</span><span class="stat-label">Modules</span></div></div>
+            <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-body"><span class="stat-value" id="statNotes">0</span><span class="stat-label">Notes saisies</span></div></div>
+            <div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-body"><span class="stat-value" id="statAbsences">0</span><span class="stat-label">Absences</span></div></div>
+          </div>
+          <div class="card">
+            <h3>Bienvenue sur le portail ESISA</h3>
+            <p>Utilisez la barre latérale pour naviguer entre les sections : gestion des étudiants, modules (5 ans / 10 semestres), absences, notes, décisions académiques, et exportation de documents.</p>
+            <p>Toutes les données sont gérées dynamiquement — ajoutez, modifiez ou supprimez librement.</p>
+          </div>
+        </section>
+
+        <!-- ════════ STUDENTS ════════ -->
+        <section id="section-students" class="section">
+          <div class="section-toolbar">
+            <h3>Gestion des Étudiants</h3>
+            <button class="btn-primary" id="addStudentBtn">+ Ajouter</button>
+          </div>
+
+          <!-- Student Form -->
+          <div id="studentFormCard" class="card form-card" style="display:none;">
+            <div class="form-header">
+              <h4 id="studentFormTitle">Nouvel étudiant</h4>
+              <button class="close-btn" id="closeStudentForm">✕</button>
+            </div>
+            <form id="studentForm">
+              <input type="hidden" id="studentId" />
+              <div class="form-grid">
+                <label>Prénom <input type="text" id="firstName" required /></label>
+                <label>Nom <input type="text" id="lastName" required /></label>
+                <label>Email <input type="email" id="email" required /></label>
+                <label>Filière
+                  <select id="filiere" required></select>
+                </label>
+                <label>Année (1-5) <input type="number" id="year" min="1" max="5" value="1" required /></label>
+                <label>Semestre (1-10) <input type="number" id="semester" min="1" max="10" value="1" required /></label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary" id="saveStudentBtn">Enregistrer</button>
+                <button type="button" class="btn-outline" id="cancelStudentBtn">Annuler</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Students Table -->
+          <div class="card table-card">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th><th>Nom</th><th>Email</th><th>Filière</th><th>Année</th><th>Sem.</th><th>Moyenne</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsBody">
+                  <tr><td colspan="8" class="empty">Aucun étudiant</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════ MODULES ════════ -->
+        <section id="section-modules" class="section">
+          <div class="section-toolbar">
+            <h3>Gestion des Modules</h3>
+            <button class="btn-primary" id="addModuleBtn">+ Ajouter</button>
+          </div>
+
+          <!-- Module Form -->
+          <div id="moduleFormCard" class="card form-card" style="display:none;">
+            <div class="form-header">
+              <h4 id="moduleFormTitle">Nouveau module</h4>
+              <button class="close-btn" id="closeModuleForm">✕</button>
+            </div>
+            <form id="moduleForm">
+              <input type="hidden" id="moduleId" />
+              <div class="form-grid">
+                <label>Code <input type="text" id="moduleCode" placeholder="IL-S1.1" required /></label>
+                <label>Nom <input type="text" id="moduleName" required /></label>
+                <label>Coefficient <input type="number" id="moduleCoeff" min="0.5" step="0.5" value="2" required /></label>
+                <label>Année (1-5) <input type="number" id="moduleYear" min="1" max="5" value="1" required /></label>
+                <label>Semestre (1-10) <input type="number" id="moduleSemester" min="1" max="10" value="1" required /></label>
+                <label>Filière
+                  <select id="moduleFiliere">
+                    <option value="ALL">Toutes les filières</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Enregistrer</button>
+                <button type="button" class="btn-outline" id="cancelModuleBtn">Annuler</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Filters -->
+          <div class="card filter-bar">
+            <label>Année <select id="filterModuleYear"><option value="">Toutes</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+            <label>Semestre <select id="filterModuleSem"><option value="">Tous</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label>
+          </div>
+
+          <!-- Modules Table -->
+          <div class="card table-card">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Code</th><th>Nom</th><th>Coeff.</th><th>Année</th><th>Sem.</th><th>Filière</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="modulesBody">
+                  <tr><td colspan="7" class="empty">Aucun module</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════ ABSENCES ════════ -->
+        <section id="section-absences" class="section">
+          <div class="section-toolbar"><h3>Gestion des Absences</h3></div>
+
+          <div class="card form-card">
+            <form id="attendanceForm">
+              <div class="form-grid">
+                <label>Étudiant <select id="attStudentId" required></select></label>
+                <label>Module <select id="attModuleId" required></select></label>
+                <label>Date <input type="date" id="attDate" required /></label>
+                <label>Statut
+                  <select id="attStatus" required>
+                    <option value="present">Présent</option>
+                    <option value="absent">Absent</option>
+                    <option value="late">En retard</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Enregistrer</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <label>Voir pour : <select id="attViewStudent"></select></label>
+          </div>
+
+          <div class="card table-card">
+            <h4>Historique</h4>
+            <div class="table-responsive">
+              <table>
+                <thead><tr><th>Date</th><th>Module</th><th>Statut</th><th>Actions</th></tr></thead>
+                <tbody id="attendanceBody"><tr><td colspan="4" class="empty">Aucun enregistrement</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card table-card">
+            <h4>Résumé par module</h4>
+            <div class="table-responsive">
+              <table>
+                <thead><tr><th>Module</th><th>Total</th><th>Présent</th><th>Absent</th><th>Retard</th></tr></thead>
+                <tbody id="attendanceSummary"><tr><td colspan="5" class="empty">—</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════ GRADES ════════ -->
+        <section id="section-grades" class="section">
+          <div class="section-toolbar"><h3>Notes &amp; Rattrapages</h3></div>
+
+          <div class="card form-card">
+            <h4>Saisir une note</h4>
+            <form id="gradeForm">
+              <div class="form-grid">
+                <label>Étudiant <select id="gradeStudentId" required></select></label>
+                <label>Module <select id="gradeModuleId" required></select></label>
+                <label>Note (0-20) <input type="number" id="gradeValue" min="0" max="20" step="0.25" required /></label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Enregistrer</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card form-card">
+            <h4>Rattrapage</h4>
+            <form id="rattrapageForm">
+              <div class="form-grid">
+                <label>Étudiant <select id="rattStudentId" required></select></label>
+                <label>Module <select id="rattModuleId" required></select></label>
+                <label>Note rattrapage (0-20) <input type="number" id="rattValue" min="0" max="20" step="0.25" required /></label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-warning">Soumettre rattrapage</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <label>Relevé pour : <select id="gradeViewStudent"></select></label>
+          </div>
+
+          <div class="card table-card">
+            <div class="table-responsive">
+              <table>
+                <thead><tr><th>Module</th><th>Code</th><th>Coeff.</th><th>Note</th><th>Ratt.</th><th>Effective</th><th>Statut</th><th>Actions</th></tr></thead>
+                <tbody id="gradesBody"><tr><td colspan="8" class="empty">Aucune note</td></tr></tbody>
+              </table>
+            </div>
+            <p class="average-display">Moyenne pondérée : <strong id="studentAverage">—</strong></p>
+          </div>
+        </section>
+
+        <!-- ════════ DECISIONS ════════ -->
+        <section id="section-decisions" class="section">
+          <div class="section-toolbar"><h3>Décisions Académiques</h3></div>
+
+          <div class="card">
+            <label>Étudiant : <select id="decisionStudentId"></select></label>
+          </div>
+
+          <div id="decisionResult" class="card" style="display:none;">
+            <div class="decision-header">
+              <div><strong id="decisionName"></strong><br><span id="decisionInfo" class="text-muted"></span></div>
+              <span id="decisionBadge" class="decision-badge"></span>
+            </div>
+            <div class="decision-stats">
+              <span>Moyenne : <strong id="decisionAvg">—</strong></span>
+              <span>Validés : <strong id="decisionValidated">—</strong></span>
+              <span>Rattrapages : <strong id="decisionRatt">—</strong></span>
+              <span>Échoués : <strong id="decisionFailed">—</strong></span>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead><tr><th>Module</th><th>Code</th><th>Note</th><th>Ratt.</th><th>Effective</th><th>Statut</th></tr></thead>
+                <tbody id="decisionModules"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════ EXPORT ════════ -->
+        <section id="section-export" class="section">
+          <div class="section-toolbar"><h3>Documents &amp; Export</h3></div>
+          <div class="card">
+            <p>Exportez les données en CSV pour une utilisation externe.</p>
+            <div class="form-actions">
+              <button class="btn-primary" id="exportStudentsCSV">📥 Étudiants (CSV)</button>
+              <button class="btn-primary" id="exportModulesCSV">📥 Modules (CSV)</button>
+              <button class="btn-primary" id="exportGradesCSV">📥 Notes (CSV)</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ════════ SETTINGS ════════ -->
+        <section id="section-settings" class="section">
+          <div class="section-toolbar"><h3>Paramètres</h3></div>
+          <div class="card">
+            <h4>ℹ️ À propos</h4>
+            <p><strong>Version :</strong> 2.0.0</p>
+            <p><strong>Programme :</strong> Bac+5 — 5 ans / 10 semestres</p>
+            <p><strong>Filières :</strong> Ingénierie Logiciel · SI-IA · SI-Transformation</p>
+            <p><strong>Développeur :</strong> Zayd Swy — ESISA 1st Year Student</p>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Footer -->
+      <footer class="main-footer">
+        <p>Developed by <strong>Zayd Swy</strong> — ESISA 1st Year Student &nbsp;|&nbsp; &copy; 2026 ESISA</p>
+      </footer>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
