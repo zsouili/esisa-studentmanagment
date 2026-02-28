@@ -1,0 +1,74 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  name     String?
+  role     String @default("admin")
+}
+
+model Student {
+  id         Int          @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  email      String       @unique
+  department String
+  year       Int
+  semester   Int          @default(1)
+  createdAt  DateTime     @default(now())
+  notes      Note[]
+  tuition    Tuition?
+  attendance Attendance[]
+}
+
+model Module {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
+  coefficient Float        @default(1)
+  year        Int          @default(1)
+  semester    Int          @default(1)
+  filiere     String       @default("ALL")
+  createdAt   DateTime     @default(now())
+  notes       Note[]
+  attendance  Attendance[]
+}
+
+model Note {
+  studentId       Int
+  moduleId        Int
+  grade           Float
+  rattrapageGrade Float?
+  updatedAt       DateTime @updatedAt
+  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  module          Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, moduleId])
+}
+
+model Tuition {
+  studentId Int      @id
+  totalFees Float    @default(0)
+  paidFees  Float    @default(0)
+  updatedAt DateTime @updatedAt
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  moduleId  Int
+  date      String
+  status    String
+  createdAt DateTime @default(now())
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+}
