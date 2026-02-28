@@ -3,13 +3,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
 export default async function Home() {
+  let session = null;
   try {
-    const session = await getServerSession(authOptions);
-    if (session) {
-      redirect('/dashboard');
-    }
+    session = await getServerSession(authOptions);
   } catch (e) {
     console.error('Session check failed:', e.message);
+  }
+  if (session) {
+    redirect('/dashboard');
   }
   redirect('/login');
 }
