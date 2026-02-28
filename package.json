@@ -16,12 +16,11 @@
     "bcryptjs": "^2.4.3",
     "next": "^14.2.18",
     "next-auth": "^4.24.11",
+    "prisma": "^5.22.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
-  "devDependencies": {
-    "prisma": "^5.22.0"
-  },
+  "devDependencies": {},
   "prisma": {
     "schema": "prisma/schema.prisma"
   }
